@@ -1,0 +1,159 @@
+use test
+db.dropDatabase()
+use test
+
+db.createCollection("providers", {
+	validator: { $jsonSchema: {
+		bsonType: "object",		
+		properties: {
+			name: {
+				bsonType: "string"
+			},
+			contact: {
+				bsonType : "string"
+			},
+			address: {
+			 	bsonType : "string"
+			}
+		}
+    }}
+})
+
+db.createCollection("storagepoints", {
+	validator: { $jsonSchema: {
+		bsonType: "object",
+		required: [ "address" ],
+		properties: {
+			address: {
+				bsonType: "string"
+			},
+			contact: {
+				bsonType: "string"
+			},
+			rentPrice: {
+				bsonType: "double"
+			}
+		}
+	}}
+})
+
+db.createCollection("media", {
+	validator: { $jsonSchema: {
+		bsonType: "object",
+		required: [ "mediaName" ],
+		properties: {
+			mediaName: {
+				bsonType: "string"
+			},
+			mediaContent: {
+				bsonType: "binData"
+			},
+			productId: {
+				bsonType: "objectId"
+			}
+		}
+	}}
+})
+
+db.createCollection("buyerinfos", {
+	validator: { $jsonSchema: {
+		bsonType: "object",
+		required: [ "lastName", "phone" ],
+		properties: {
+			name: {
+				bsonType: "string"
+			},
+			lastName: {
+				bsonType: "string"
+			},
+			phone: {
+				bsonType: "string"
+			},
+			address: {
+				bsonType: "string"
+			}
+		}
+	}}
+})
+
+db.createCollection("products", {
+	validator: { $jsonSchema: {
+	bsonType: "object",
+	required: [ "name" ],
+	properties: {
+		name: {
+			bsonType: "string"
+		},
+		price: {
+			bsonType: "double"
+		},
+		isavail: {
+			bsonType: "bool"
+		},
+		storage: {
+			bsonType: "objectId"
+		},
+		provider: {
+			bsonType: "objectId"
+		}
+	}
+	}}
+})
+
+db.products.createIndex( { "name": 1 }, { unique: true } )
+
+
+db.createCollection("bookingproducts", {
+	validator: { $jsonSchema: {
+		bsonType: "object",
+		required: [ "productId", "buyerId" ],
+		properties: {
+			productId: {
+				bsonType: "objectId"
+			},
+			buyerId: {
+				bsonType: "objectId"
+			},
+			quantity: {
+				bsonType: "int"
+			}
+		}
+	}}
+})
+
+
+
+
+db.storagepoints.insert({
+	address: 'kataeva',
+	contact: '983493827',
+	rentPrice: 21313
+})
+db.providers.insert({
+	name: 'provider1',
+	contact: '8909873642738',
+	address: 'its addressss'
+})
+db.products.insert({
+	name: 'prod2',
+	price: 123432, 
+	isavail: true, 
+	storage: db.storagepoints.find()[0]._id,
+	provider: db.providers.find()[0]._id,
+})
+db.buyerinfos.insert({
+	name: 'Name',
+	lastName: 'Fimily',
+	phone: '89087178057',
+	address: 'Kataeva 2/11'
+})
+db.media.insert({
+	mediaName: 'media1',
+	mediaContent: new BinData(1, "1234"),
+	productId: db.products.find()[0]._id
+})
+db.bookingproducts.insert({
+	productId: db.products.find()[0]._id,
+	buyerId: db.buyerinfos.find()[0]._id,
+	quantity:  NumberInt(10)
+})
